@@ -1,4 +1,4 @@
-$(async function() {
+$(async function () {
   // cache some selectors we'll be using quite a bit
   const $allStoriesList = $("#all-articles-list");
   const $submitForm = $("#submit-form");
@@ -8,7 +8,11 @@ $(async function() {
   const $ownStories = $("#my-articles");
   const $navLogin = $("#nav-login");
   const $navLogOut = $("#nav-logout");
-
+  // MY:
+  const $mainNavLinks = $(".main-nav-links");
+  const $navWelcome = $("#nav-welcome");
+  const $navSubmit = $("#nav-submit");
+  //:MY
   // global storyList variable
   let storyList = null;
 
@@ -22,7 +26,7 @@ $(async function() {
    *  If successfully we will setup the user instance
    */
 
-  $loginForm.on("submit", async function(evt) {
+  $loginForm.on("submit", async function (evt) {
     evt.preventDefault(); // no page-refresh on submit
 
     // grab the username and password
@@ -42,7 +46,7 @@ $(async function() {
    *  If successfully we will setup a new user instance
    */
 
-  $createAccountForm.on("submit", async function(evt) {
+  $createAccountForm.on("submit", async function (evt) {
     evt.preventDefault(); // no page refresh
 
     // grab the required fields
@@ -61,7 +65,7 @@ $(async function() {
    * Log Out Functionality
    */
 
-  $navLogOut.on("click", function() {
+  $navLogOut.on("click", function () {
     // empty out local storage
     localStorage.clear();
     // refresh the page, clearing memory
@@ -72,7 +76,7 @@ $(async function() {
    * Event Handler for Clicking Login
    */
 
-  $navLogin.on("click", function() {
+  $navLogin.on("click", function () {
     // Show the Login and Create Account Forms
     $loginForm.slideToggle();
     $createAccountForm.slideToggle();
@@ -83,11 +87,33 @@ $(async function() {
    * Event handler for Navigation to Homepage
    */
 
-  $("body").on("click", "#nav-all", async function() {
+  $("body").on("click", "#nav-all", async function () {
     hideElements();
     await generateStories();
     $allStoriesList.show();
   });
+
+  //MY: nav submit click
+  $navSubmit.on("click", async () => {
+    $submitForm.slideToggle();
+  });
+
+  //submit gather data and submit form
+  $submitForm.on("submit", async (evt) => {
+    evt.preventDefault();
+    //collect values
+    const author = $("#author").val();
+    const title = $("#title").val();
+    const url = $("#url").val();
+    //assemble vallues into object
+    const newStory = { author, title, url };
+    //call on addStory static method from StoryList class. submit token from localStorage
+    await StoryList.addStory(localStorage.getItem("token"), newStory);
+    //close submit form and refresh stories
+    $submitForm.slideToggle();
+    await generateStories();
+  });
+  //:MY
 
   /**
    * On page load, checks local storage to see if the user is already logged in.
@@ -181,14 +207,18 @@ $(async function() {
       $filteredArticles,
       $ownStories,
       $loginForm,
-      $createAccountForm
+      $createAccountForm,
     ];
-    elementsArr.forEach($elem => $elem.hide());
+    elementsArr.forEach(($elem) => $elem.hide());
   }
 
   function showNavForLoggedInUser() {
     $navLogin.hide();
     $navLogOut.show();
+    // MY: show main nav menu options
+    $mainNavLinks.toggleClass("hidden");
+    $navWelcome.show();
+    //:MY
   }
 
   /* simple function to pull the hostname from a URL */

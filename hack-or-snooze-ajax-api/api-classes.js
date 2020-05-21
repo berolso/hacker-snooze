@@ -1,4 +1,4 @@
-//MY: to notify where my code begins and ends. to avoid confusion during code reviews when we are given tasks to only fill in missing code:MY 
+//MY: to notify where my code begins and ends. to avoid confusion during code reviews when we are given tasks to only fill in missing code:MY
 const BASE_URL = "https://hack-or-snooze-v3.herokuapp.com";
 /**
  * This class maintains the list of individual Story instances
@@ -44,10 +44,19 @@ class StoryList {
    * Returns the new story object
    */
 
-  async addStory(user, newStory) {
+  //MY: add static to addStory :MY
+  static async addStory(user, newStory) {
     // TODO - Implement this functions!
     // this function should return the newly created story so it can be used in
     // the script.js file where it will be appended to the DOM
+    //MY: post request api to submit new story
+    const response = await axios.post(`${BASE_URL}/stories`, {
+      token: user,
+      story: newStory,
+    });
+
+    console.log(user, newStory);
+    //:MY
   }
 }
 
@@ -143,7 +152,7 @@ class User {
         token,
       },
     });
-  
+
     // instantiate the user from the API information
     const existingUser = new User(response.data.user);
 
