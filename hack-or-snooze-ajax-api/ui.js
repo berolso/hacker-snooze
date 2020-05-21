@@ -12,6 +12,7 @@ $(async function () {
   const $mainNavLinks = $(".main-nav-links");
   const $navWelcome = $("#nav-welcome");
   const $navSubmit = $("#nav-submit");
+  const $navMyStories = $("#nav-my-stories");
   //:MY
   // global storyList variable
   let storyList = null;
@@ -113,6 +114,10 @@ $(async function () {
     $submitForm.slideToggle();
     await generateStories();
   });
+
+  $navMyStories.on("click", async (evt) => {
+    generateMyStories();
+  });
   //:MY
 
   /**
@@ -175,6 +180,18 @@ $(async function () {
       $allStoriesList.append(result);
     }
   }
+  //MY: generate my stories list this could be added to
+  async function generateMyStories() {
+    //clear all stories list
+    $allStoriesList.empty();
+    //get my stories from StoryList
+    for (let story of currentUser.ownStories) {
+      const result = generateStoryHTML(story);
+      $allStoriesList.append(result);
+    }
+    // console.log(currentUser.ownStories);
+  }
+  //:MY
 
   /**
    * A function to render HTML for an individual Story instance

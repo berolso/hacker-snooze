@@ -54,8 +54,6 @@ class StoryList {
       token: user,
       story: newStory,
     });
-
-    console.log(user, newStory);
     //:MY
   }
 }
