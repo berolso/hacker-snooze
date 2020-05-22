@@ -166,7 +166,24 @@ class User {
     );
     return existingUser;
   }
+
+  //MY:add favorite story to User class
+  static async addFavorite(username, storyid, token) {
+    const response = await axios.post(
+      `${BASE_URL}/users/${username}/favorites/${storyid}`,
+      { token }
+    );
+  }
+  //remove favorite story from user class
+  static async removeFavorite(username, storyid, token) {
+    // console.log(username,storyid, token)
+    const response = await axios.delete(
+      `${BASE_URL}/users/${username}/favorites/${storyid}`,
+      { data: { token } }
+    );
+  }
 }
+//:MY
 
 /**
  * Class to represent a single story.

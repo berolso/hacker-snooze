@@ -13,6 +13,7 @@ $(async function () {
   const $navWelcome = $("#nav-welcome");
   const $navSubmit = $("#nav-submit");
   const $navMyStories = $("#nav-my-stories");
+  const $navFavorites = $("#nav-favorites");
   //:MY
   // global storyList variable
   let storyList = null;
@@ -98,6 +99,14 @@ $(async function () {
   $navSubmit.on("click", async () => {
     $submitForm.slideToggle();
   });
+  //click nav favorites
+  $navFavorites.on("click", async () => {
+    await generateFavorites();
+  });
+  //click nav my-stories
+  $navMyStories.on("click", async () => {
+    generateMyStories();
+  });
 
   //submit gather data and submit form
   $submitForm.on("submit", async (evt) => {
@@ -115,8 +124,23 @@ $(async function () {
     await generateStories();
   });
 
-  $navMyStories.on("click", async (evt) => {
-    generateMyStories();
+  //handle heart icon click to add to favorites list
+  $("body").on("click", ".fa-heart", async (evt) => {
+    //check to see if isFavorite
+    let isFavorite = [...evt.target.classList].some((x) => x === "fas");
+    evt.target.classList.toggle("far");
+    evt.target.classList.toggle("fas");
+    isFavorite
+      ? User.removeFavorite(
+          currentUser.username,
+          evt.target.parentElement.id,
+          localStorage.getItem("token")
+        )
+      : User.addFavorite(
+          currentUser.username,
+          evt.target.parentElement.id,
+          localStorage.getItem("token")
+        );
   });
   //:MY
 
@@ -180,8 +204,9 @@ $(async function () {
       $allStoriesList.append(result);
     }
   }
-  //MY: generate my stories list this could be added to
-  async function generateMyStories() {
+  //MY: generate my stories list
+  // (this could be factored into generateStories with an argument to make more concise code, but i'm opting for separation to preserve independence)
+  function generateMyStories() {
     //clear all stories list
     $allStoriesList.empty();
     //get my stories from StoryList
@@ -189,8 +214,16 @@ $(async function () {
       const result = generateStoryHTML(story);
       $allStoriesList.append(result);
     }
-    // console.log(currentUser.ownStories);
   }
+  //generat favorites
+  function generateFavorites() {
+    $allStoriesList.empty();
+    for (let story of currentUser.favorites) {
+      const result = generateStoryHTML(story);
+      $allStoriesList.append(result);
+    }
+  }
+
   //:MY
 
   /**
@@ -199,13 +232,16 @@ $(async function () {
 
   function generateStoryHTML(story) {
     let hostName = getHostName(story.url);
-
+    //MY: check to see if storyId is in user favorites array
+    let isTrue = currentUser.favorites.some((x) => x.storyId === story.storyId);
     // render story markup
+    //prepend list item with heart icon. ternary to determine icon:MY
     const storyMarkup = $(`
       <li id="${story.storyId}">
+      <i class="${isTrue ? "fas" : "far"} fa-heart"></i>
         <a class="article-link" href="${story.url}" target="a_blank">
           <strong>${story.title}</strong>
-        </a>
+        </>
         <small class="article-author">by ${story.author}</small>
         <small class="article-hostname ${hostName}">(${hostName})</small>
         <small class="article-username">posted by ${story.username}</small>
