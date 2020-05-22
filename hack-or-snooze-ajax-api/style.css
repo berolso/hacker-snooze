@@ -226,3 +226,12 @@ form > hr {
     margin: 8px auto;
   }
 }
+
+/* MY: */
+.fa-trash:hover{
+  color: salmon;
+}
+.fa-heart:hover{
+  color: dodgerblue
+}
+/* :MY */
