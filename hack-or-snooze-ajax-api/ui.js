@@ -118,11 +118,14 @@ $(async function () {
     //assemble vallues into object
     const newStory = { author, title, url };
     //call on addStory static method from StoryList class. submit token from localStorage
-    const response = await StoryList.addStory(localStorage.getItem("token"), newStory);
+    const response = await StoryList.addStory(
+      localStorage.getItem("token"),
+      newStory
+    );
     //close submit form and refresh stories
     $submitForm.slideToggle();
     //update ownstories
-    currentUser.ownStories.push(response.data.story) 
+    currentUser.ownStories.push(response.data.story);
     await generateStories();
   });
 
@@ -146,7 +149,6 @@ $(async function () {
         );
     //update currentUser favorites list with response
     currentUser.favorites = response.data.user.favorites;
-    console.log(currentUser)
   });
   //:MY
 
@@ -221,7 +223,8 @@ $(async function () {
     $allStoriesList.empty();
     //get my stories from StoryList
     for (let story of currentUser.ownStories) {
-      const result = generateStoryHTML(story);
+      //generate html with admin
+      const result = generateAdminHTML(story);
       $allStoriesList.append(result);
     }
   }
@@ -247,26 +250,65 @@ $(async function () {
 
   function generateStoryHTML(story) {
     let hostName = getHostName(story.url);
-    //MY: check to see if storyId is in user favorites array
+    //MY: check to see if logged in and if story is in user favorites array
+    let isFavorite = currentUser
+      ? currentUser.favorites.some((x) => x.storyId === story.storyId)
+      : null;
+    // ternary to add correct icon
+    let favoriteHTML = currentUser
+      ? `<i class="${isFavorite ? "fas" : "far"} fa-heart"></i>
+      `
+      : "";
+    // render story markup
+    //prepend list item with heart icon if logged in.
+    const storyMarkup = $(
+      `
+      <li id="${story.storyId}">` +
+        favoriteHTML +
+        // :MY
+        `<a class="article-link" href="${story.url}" target="a_blank">
+      <strong>${story.title}</strong>
+      </>
+      <small class="article-author">by ${story.author}</small>
+      <small class="article-hostname ${hostName}">(${hostName})</small>
+      <small class="article-username">posted by ${story.username}</small>
+      </li>
+    `
+    );
+
+    return storyMarkup;
+  }
+
+  //MY: generate html with admin options (delete...)
+  function generateAdminHTML(story) {
+    let hostName = getHostName(story.url);
+    //check to see if storyId is in user favorites array
     let isFavorite = currentUser.favorites.some(
       (x) => x.storyId === story.storyId
     );
-    // render story markup
-    //prepend list item with heart icon. ternary to determine icon:MY
+    //check to see if is ownStory
+    let isMyStory = currentUser.ownStories.some(
+      (x) => x.storyId === story.storyId
+    );
+    //add trash can icon to delete
     const storyMarkup = $(`
       <li id="${story.storyId}">
       <i class="${isFavorite ? "fas" : "far"} fa-heart"></i>
-        <a class="article-link" href="${story.url}" target="a_blank">
-          <strong>${story.title}</strong>
-        </>
-        <small class="article-author">by ${story.author}</small>
-        <small class="article-hostname ${hostName}">(${hostName})</small>
-        <small class="article-username">posted by ${story.username}</small>
+      <a class="article-link" href="${story.url}" target="a_blank">
+      <strong>${story.title}</strong>
+      </>
+      <small class="article-author">by ${story.author}</small>
+      <small class="article-hostname ${hostName}">(${hostName})</small>
+      <small class="article-username">posted by ${story.username}
+      
+      ${isMyStory ? '<i class="fas fa-trash"></i>' : ""}
+      </small>
       </li>
     `);
 
     return storyMarkup;
   }
+  //:MY
 
   /* hide all elements in elementsArr */
 
