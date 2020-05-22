@@ -173,6 +173,7 @@ class User {
       `${BASE_URL}/users/${username}/favorites/${storyid}`,
       { token }
     );
+    return response
   }
   //remove favorite story from user class
   static async removeFavorite(username, storyid, token) {
@@ -181,6 +182,8 @@ class User {
       `${BASE_URL}/users/${username}/favorites/${storyid}`,
       { data: { token } }
     );
+    return response 
+
   }
 }
 //:MY

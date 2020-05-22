@@ -101,7 +101,7 @@ $(async function () {
   });
   //click nav favorites
   $navFavorites.on("click", async () => {
-    await generateFavorites();
+    generateFavorites();
   });
   //click nav my-stories
   $navMyStories.on("click", async () => {
@@ -130,17 +130,20 @@ $(async function () {
     let isFavorite = [...evt.target.classList].some((x) => x === "fas");
     evt.target.classList.toggle("far");
     evt.target.classList.toggle("fas");
-    isFavorite
-      ? User.removeFavorite(
+    //toggle favorite
+    let response = isFavorite
+      ? await User.removeFavorite(
           currentUser.username,
           evt.target.parentElement.id,
           localStorage.getItem("token")
         )
-      : User.addFavorite(
+      : await User.addFavorite(
           currentUser.username,
           evt.target.parentElement.id,
           localStorage.getItem("token")
         );
+    //update currentUser favorites list with response
+    currentUser.favorites = response.data.user.favorites;
   });
   //:MY
 
@@ -178,7 +181,7 @@ $(async function () {
     $loginForm.trigger("reset");
     $createAccountForm.trigger("reset");
 
-    // show the stories
+    // show the stori
     $allStoriesList.show();
 
     // update the navigation bar
@@ -206,7 +209,11 @@ $(async function () {
   }
   //MY: generate my stories list
   // (this could be factored into generateStories with an argument to make more concise code, but i'm opting for separation to preserve independence)
-  function generateMyStories() {
+  async function generateMyStories() {
+    //get current instance of story list
+    const storyListInstance = await StoryList.getStories();
+    //update global varaible
+    storyList = storyListInstance;
     //clear all stories list
     $allStoriesList.empty();
     //get my stories from StoryList
@@ -216,7 +223,12 @@ $(async function () {
     }
   }
   //generat favorites
-  function generateFavorites() {
+  async function generateFavorites() {
+    //get current instance of story list
+    const storyListInstance = await StoryList.getStories();
+    //update global varaible
+    storyList = storyListInstance;
+    //clear all stories list
     $allStoriesList.empty();
     for (let story of currentUser.favorites) {
       const result = generateStoryHTML(story);
@@ -233,12 +245,14 @@ $(async function () {
   function generateStoryHTML(story) {
     let hostName = getHostName(story.url);
     //MY: check to see if storyId is in user favorites array
-    let isTrue = currentUser.favorites.some((x) => x.storyId === story.storyId);
+    let isFavorite = currentUser.favorites.some(
+      (x) => x.storyId === story.storyId
+    );
     // render story markup
     //prepend list item with heart icon. ternary to determine icon:MY
     const storyMarkup = $(`
       <li id="${story.storyId}">
-      <i class="${isTrue ? "fas" : "far"} fa-heart"></i>
+      <i class="${isFavorite ? "fas" : "far"} fa-heart"></i>
         <a class="article-link" href="${story.url}" target="a_blank">
           <strong>${story.title}</strong>
         </>
