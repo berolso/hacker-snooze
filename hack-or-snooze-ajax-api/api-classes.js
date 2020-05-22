@@ -54,8 +54,14 @@ class StoryList {
       token: user,
       story: newStory,
     });
-    //:MY
   }
+  // delete story
+  static async deleteStory(token, storyId) {
+    return await axios.delete(`${BASE_URL}/stories/${storyId}`, {
+      data: { token },
+    });
+  }
+  //:MY
 }
 
 /**

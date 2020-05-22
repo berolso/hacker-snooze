@@ -41,6 +41,10 @@ $(async function () {
     currentUser = userInstance;
     syncCurrentUserToLocalStorage();
     loginAndSubmitForm();
+
+    //refresh content
+    await generateStories();
+    $allStoriesList.show();
   });
 
   /**
@@ -101,10 +105,12 @@ $(async function () {
   });
   //click nav favorites
   $navFavorites.on("click", async () => {
+    $submitForm.hide()
     generateFavorites();
   });
   //click nav my-stories
   $navMyStories.on("click", async () => {
+    $submitForm.hide()
     generateMyStories();
   });
 
@@ -149,6 +155,21 @@ $(async function () {
         );
     //update currentUser favorites list with response
     currentUser.favorites = response.data.user.favorites;
+  });
+
+  //delete icon action
+  $("body").on("click", ".fa-trash", async (evt) => {
+    //delete story from api
+    const response = await StoryList.deleteStory(
+      currentUser.loginToken,
+      evt.target.parentElement.id
+    );
+    //update current user ownStories
+    currentUser.ownStories = currentUser.ownStories.filter(
+      (x) => x.storyId !== response.data.story.storyId
+    );
+    //refresh list
+    await generateMyStories();
   });
   //:MY
 
@@ -294,6 +315,7 @@ $(async function () {
     const storyMarkup = $(`
       <li id="${story.storyId}">
       <i class="${isFavorite ? "fas" : "far"} fa-heart"></i>
+      ${isMyStory ? '<i class="fas fa-trash"></i>' : ""}
       <a class="article-link" href="${story.url}" target="a_blank">
       <strong>${story.title}</strong>
       </>
@@ -301,7 +323,6 @@ $(async function () {
       <small class="article-hostname ${hostName}">(${hostName})</small>
       <small class="article-username">posted by ${story.username}
       
-      ${isMyStory ? '<i class="fas fa-trash"></i>' : ""}
       </small>
       </li>
     `);
