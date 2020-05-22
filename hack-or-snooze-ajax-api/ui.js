@@ -118,9 +118,11 @@ $(async function () {
     //assemble vallues into object
     const newStory = { author, title, url };
     //call on addStory static method from StoryList class. submit token from localStorage
-    await StoryList.addStory(localStorage.getItem("token"), newStory);
+    const response = await StoryList.addStory(localStorage.getItem("token"), newStory);
     //close submit form and refresh stories
     $submitForm.slideToggle();
+    //update ownstories
+    currentUser.ownStories.push(response.data.story) 
     await generateStories();
   });
 
@@ -144,6 +146,7 @@ $(async function () {
         );
     //update currentUser favorites list with response
     currentUser.favorites = response.data.user.favorites;
+    console.log(currentUser)
   });
   //:MY
 

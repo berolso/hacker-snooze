@@ -50,7 +50,7 @@ class StoryList {
     // this function should return the newly created story so it can be used in
     // the script.js file where it will be appended to the DOM
     //MY: post request api to submit new story
-    const response = await axios.post(`${BASE_URL}/stories`, {
+    return await axios.post(`${BASE_URL}/stories`, {
       token: user,
       story: newStory,
     });
@@ -173,7 +173,7 @@ class User {
       `${BASE_URL}/users/${username}/favorites/${storyid}`,
       { token }
     );
-    return response
+    return response;
   }
   //remove favorite story from user class
   static async removeFavorite(username, storyid, token) {
@@ -182,8 +182,7 @@ class User {
       `${BASE_URL}/users/${username}/favorites/${storyid}`,
       { data: { token } }
     );
-    return response 
-
+    return response;
   }
 }
 //:MY
